@@ -5,6 +5,7 @@ import org.jeam.appmockito.ejemplo.models.Examen;
 import org.jeam.appmockito.ejemplo.repositories.ExamenRepository;
 import org.jeam.appmockito.ejemplo.repositories.IExamenRepository;
 import org.jeam.appmockito.ejemplo.repositories.IPreguntaRepository;
+import org.jeam.appmockito.ejemplo.repositories.PreguntasRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +30,8 @@ class ExamenServiceTest {
         IPreguntaRepository preguntas;
         @InjectMocks
         IExamenService service;
+        @InjectMocks
+    PreguntasRepository preguntasRepository;
         @Captor
         ArgumentCaptor<Long>capture;
     @BeforeEach
@@ -172,6 +175,49 @@ class ExamenServiceTest {
         Examen e = service.findExamendPorNombreConPreguntas("Sociales");
         assertEquals(5L,e.getId());
         assertEquals("Sociales",e.getNombre());
+
+    }
+
+    @Test
+    void testSpy() {
+        //AQUÍ SE SIMULAN LOS MÉTODOS REALES, DEBE SER CLASE
+        ExamenRepository examenRepository = spy(ExamenRepository.class);
+        IPreguntaRepository preguntaRepository = spy(IPreguntaRepository.class);
+        IExamenService examenService = spy(IExamenService.class);
+//        when(preguntasRepository.findPreguntasPorExamenId(anyLong())).thenReturn(Datos.PREGUNTAS);
+        doReturn(Datos.PREGUNTAS).when(preguntaRepository.findPreguntasPorExamenId(anyLong()));
+
+        Examen e = examenService.findExamendPorNombreConPreguntas("Sociales");
+        assertEquals(5,e.getId());
+        assertEquals("Sociales",e.getNombre());
+        assertEquals(5,e.getPreguntas().size());
+        assertTrue(e.getPreguntas().contains("Sociales"));
+        verify(examenRepository.findAll());
+        verify(preguntaRepository.findPreguntasPorExamenId(anyLong()));
+
+    }
+
+    @Test
+    void testOrdenInvocaciones() {
+        when(repository.findAll()).thenReturn(Datos.DATOS);
+        service.findExamendPorNombreConPreguntas("Sociales");
+        service.findExamendPorNombreConPreguntas("Inglés");
+        InOrder inOrder = inOrder(repository,preguntas);
+        inOrder.verify(repository.findAll());
+        inOrder.verify(preguntas.findPreguntasPorExamenId(6L));
+        inOrder.verify(preguntas.findPreguntasPorExamenId(5L));
+
+    }
+
+    @Test
+    void testNumeroInvocaciones() {
+        when(repository.findAll()).thenReturn(Datos.DATOS);
+        service.findExamendPorNombreConPreguntas("Sociales");
+        verify(preguntas,times(2)).findPreguntasPorExamenId(5L);
+        verify(preguntas,atLeast(2)).findPreguntasPorExamenId(5L);
+        verify(preguntas,atLeastOnce()).findPreguntasPorExamenId(5L);
+        verify(preguntas,atMost(10)).findPreguntasPorExamenId(5L);
+        verify(preguntas,atMostOnce()).findPreguntasPorExamenId(5L);
 
     }
 }
