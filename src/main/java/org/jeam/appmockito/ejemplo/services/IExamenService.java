@@ -5,6 +5,6 @@ import org.jeam.appmockito.ejemplo.models.Examen;
 public interface IExamenService {
     Examen findExamendPorNombre(String nombre);
     Examen findExamendPorNombreConPreguntas(String nombre);
-
+    Examen save(Examen e);
 
 }

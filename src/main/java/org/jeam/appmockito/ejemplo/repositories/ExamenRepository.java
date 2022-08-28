@@ -10,4 +10,9 @@ public class ExamenRepository implements IExamenRepository{
     public List<Examen> findAll() {
         return Arrays.asList(new Examen(5L,"Sociales"),new Examen(6L,"Ingles"),new Examen(7L,"Español"));
     }
+
+    @Override
+    public Examen save(Examen e) {
+        return null;
+    }
 }

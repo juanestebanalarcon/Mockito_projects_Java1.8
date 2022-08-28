@@ -1,6 +1,7 @@
 package org.jeam.appmockito.ejemplo.services;
 
 import org.jeam.appmockito.ejemplo.models.Examen;
+import org.jeam.appmockito.ejemplo.repositories.ExamenRepository;
 import org.jeam.appmockito.ejemplo.repositories.IExamenRepository;
 import org.jeam.appmockito.ejemplo.repositories.IPreguntaRepository;
 
@@ -35,5 +36,13 @@ public class ExamenService implements IExamenService{
             examen.setPreguntas(preguntas);
         }
         return examen;
+    }
+
+    @Override
+    public Examen save(Examen e) {
+        if(!e.getPreguntas().isEmpty()){
+            repoPreguntas.save(e.getPreguntas());
+        }
+        return repository.save(e);
     }
 }
